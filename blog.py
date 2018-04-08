@@ -1,49 +1,16 @@
 """
-blog from your terminal.
+simple static sites from your terminal.
 
-use markdown to publish blog from command-line.
+use markdown to make static site from command-line.
 
 dependencies:
     - mistune
 """
+import os
 import argparse
 import mistune
-
-
-def add_skeleton_css(html_file):
-    """
-    Add a link to skeleton css make html look good.
-
-    :param html_file: full path to an html file
-    :return: the html file
-    """
-    pass
-
-
-def convert_to_html(filename):
-    """
-    Convert a markdown file to html using mistune libary.
-
-    :param filename: The full path to a file including filename
-    :return: a converted html file
-    """
-    markdown = mistune.Markdown()  # default settings.
-    md_file = open(filename, 'r')  # pass in full path file
-    html = markdown(md_file.read())
-    save_html_file(html)
-    return html
-
-
-def save_html_file(html_file, directory=None):
-    """
-    Save the new html file.
-
-    :param html_file: full path to an html file
-    :param directory: a specific directory otherwise use same as md_file
-    :return: path to file
-    """
-    with open('converted.html', 'w') as f:
-        f.write(html_file)
+import time
+import datetime
 
 
 def create_new_html_file(title, author, description):
@@ -54,8 +21,7 @@ def create_new_html_file(title, author, description):
     :param author: string -> name of the author
     :return: html file
     """
-    title = title.replace(' ', '_')
-    filename = title + '.html'
+    filename = 'blog.html'
     html = """<!DOCTYPE html>
 <html>
 <head>
@@ -66,12 +32,15 @@ def create_new_html_file(title, author, description):
 <meta name='description' content='{2}' />
 <link rel="stylesheet" type="text/css" href="css/normalize.css">
 <link rel="stylesheet" type="text/css" href="css/skeleton.css">
-<style>
-body {{font-family: verdana, arial, helvetica;}}
-</style>
+<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
     <div class=container>
+        <div>
+            <h1>{0}</h1>
+            <p>a blog about {2} by {1}</p>
+            <hr>
+        </div>
         <span id=find_me style="display=none;"></span>
     </div>
 </body>
@@ -79,6 +48,63 @@ body {{font-family: verdana, arial, helvetica;}}
     with open(filename, 'w') as f:  # note this doesnt check if it exists
         f.write(html)
     return
+
+
+def add_posty(post, blog_file):
+    """
+    Add a new post to an existing blog.
+
+    :param blog_file: the html file being added to
+    :return:
+    """
+    post_datetime = str(post[1])
+    post = post[0]
+    markdown = mistune.Markdown()
+    post = markdown(post)
+    post = post + '<span>created: ' + post_datetime + '</span>' "<hr>"
+    post = post + '<span id=find_me style="display=none;"></span>'
+    with open(blog_file, 'r') as f:
+        blog_text = f.read()
+    new_blog = []
+    for line in blog_text.split('\n'):
+        if '<span id=find_me style="display=none;"></span>' in line:
+            line = line.replace(
+                        '<span id=find_me style="display=none;"></span>',
+                        post)
+        new_blog.append(line)
+    blog = '\n'.join(new_blog)
+    with open(blog_file, 'w') as f:
+        f.write(blog)
+
+
+def add_posts_to_blog(posts):
+    """
+    Add each post from the list to the html file.
+
+    :param posts: a list of lists of posts (markdown text) and created time
+    :return:
+    """
+    posts.sort(key=lambda x: x[1], reverse=True)
+    for post in posts:
+        post[1] = datetime.datetime.strptime(post[1], "%a %b %d %H:%M:%S %Y")
+        add_posty(post, 'blog.html')
+
+
+def generate():
+    """
+    Combine all your markdown files into your static html file.
+
+    Ordered by file creation time from function add_posts_to_blog.
+
+    :return:
+    """
+    posts = []
+    directory = os.listdir(os.getcwd()+'/posts/')
+    for filename in directory:
+        a = os.stat(os.getcwd()+'/posts/'+filename)
+        with open(os.getcwd()+'/posts/'+filename, 'r') as f:
+            posts.append([f.read(), time.ctime(a.st_ctime)])
+    add_posts_to_blog(posts)
 
 
 def create_new_blog():
@@ -91,6 +117,8 @@ def create_new_blog():
     author_name = input("Author: ")
     description = input("Description: ")
     create_new_html_file(blog_title, author_name, description)
+    print('Blog created: blog.html')
+    print('add more markdown files to posts to expand your blog.')
 
 
 def get_post_input():
@@ -137,7 +165,6 @@ def add_post(blog_file):
     blog = '\n'.join(new_blog)
     with open(blog_file, 'w') as f:
         f.write(blog)
-    return
 
 
 def main():
@@ -145,13 +172,16 @@ def main():
     parser = argparse.ArgumentParser(
         description='create and publish a blog from your command-line'
     )
+    parser.add_argument('--generate',
+                        help='generate your blog again with new posts',
+                        action='store_true')
     parser.add_argument('--new_blog',
                         help='create a new blog',
                         action='store_true')
     args = parser.parse_args()
-    if args.new_blog:
-        create_new_blog()
-    add_post('testing.html')
+    if args.generate:
+        create_new_blog()  # yes this will be repetitive but i dont want a db
+        generate()
 
 
 if __name__ == "__main__":
