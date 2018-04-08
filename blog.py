@@ -50,7 +50,7 @@ def create_new_html_file(title, author, description):
     return
 
 
-def add_posty(post, blog_file):
+def add_post(post, blog_file):
     """
     Add a new post to an existing blog.
 
@@ -87,7 +87,7 @@ def add_posts_to_blog(posts):
     posts.sort(key=lambda x: x[1], reverse=True)
     for post in posts:
         post[1] = datetime.datetime.strptime(post[1], "%a %b %d %H:%M:%S %Y")
-        add_posty(post, 'blog.html')
+        add_post(post, 'blog.html')
 
 
 def generate():
@@ -119,52 +119,6 @@ def create_new_blog():
     create_new_html_file(blog_title, author_name, description)
     print('Blog created: blog.html')
     print('add more markdown files to posts to expand your blog.')
-
-
-def get_post_input():
-    """
-    Prompt user for their blog post input.
-
-    To exit must type exit()
-    :return: the combined lines from user input
-    """
-    print('Type exit() to finish your post.')
-    lines = []
-    while True:
-        line = input()
-        if line == 'exit()':
-            break
-        else:
-            lines.append(line)
-    lines.append('<span id=find_me style="display=none;"></span>')
-    text = '\n'.join(lines)
-    return text
-
-
-def add_post(blog_file):
-    """
-    Add a new post to an existing blog.
-
-    :param blog_file: the html file being added to
-    :return:
-    """
-    markdown = mistune.Markdown()
-    post = get_post_input()
-    post = markdown(post)
-    with open(blog_file, 'r') as f:
-        blog_text = f.read()
-
-    new_blog = []
-    for line in blog_text.split('\n'):
-        if '<span id=find_me style="display=none;"></span>' in line:
-            line = line.replace(
-                        '<span id=find_me style="display=none;"></span>',
-                        post)
-        new_blog.append(line)
-
-    blog = '\n'.join(new_blog)
-    with open(blog_file, 'w') as f:
-        f.write(blog)
 
 
 def main():
