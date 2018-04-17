@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Combine your markdown files into a single html file
+Combine your markdown notes into a single html file
 
 dependencies:
     - mistune
@@ -45,12 +45,12 @@ if __name__ == "__main__":
     side_bar = "<div class='two columns sidebar' style='font-family: verdana; float: left; height: 900px; position: fixed; border-right: 1px solid #E1E1E1;'><br>"
     side_bar += "<h2>Notes</h2><ul style='list-style-type: none;'>"
     for i in range(0, file_id):
-        side_bar += "<li><a href=#file_id{0} style='text-decoration: none;'>Note {0}</a></li>".format(i)
+        side_bar += "<a href=#file_id{0} style='text-decoration: none;'><li style='border-bottom: 1px solid #E1E1E1'>Note {0}</li></a>".format(i)
     side_bar += "</ul>"
     side_bar += "</div><br>"
     html_formatted = side_bar + html_formatted
     html_formatted = '<link href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css" rel="stylesheet"></link> ' + html_formatted
-    name = 'static_site_gen.html'
+    name = 'index.html'
     name = os.path.join(sys.argv[1], name)
     with open(name, 'w') as f:
         f.write(html_formatted)

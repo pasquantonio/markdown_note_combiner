@@ -5,16 +5,19 @@ Convert markdown files to html and join them together
 ## Usage
 `python generate_site.py [directory]`
 
-## Styling
-if `style.css` does not exist in the `css` directory, create it.
+or if you want the files in reverse order:
+`python generate_site.py [directory] reverse`
 
-Edit the `style.css` file in the `css` directory with any styling you want. Skeleton CSS is included by default. Add your own styling on top of it.
+## Skeleton CSS
 
-### Skeleten CSS
-By default going to include skeleton css files in a css directory and use that as the styling. I'm not planning to add more but it could be done if wanted.
+a cdn css link is added to the file which adds skeleton css styling. plus things I added myself which I like.
 
-This is a mobile friendly styling so it should fit to any screen.
 
 ## Dependencies
 1. mistune (converting markdown to html)
 2. tbd
+
+
+## To Do
+1. sort .md files by creation date (and reverse) - entries should be in order
+2. Extract titles of each note (first in file with ## will be the title) for sidebar navigation
